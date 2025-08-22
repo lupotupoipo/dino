@@ -1,0 +1,1157 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogo do Dinossauro - Versão Avançada</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            font-family: 'Press Start 2P', cursive, Arial, sans-serif;
+            overflow: hidden;
+            padding: 20px;
+        }
+        
+        #game-container {
+            position: relative;
+            width: 100%;
+            max-width: 900px;
+            text-align: center;
+        }
+        
+        #game-canvas {
+            background-color: #f7f7f7;
+            border: 4px solid #333;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            display: block;
+            margin: 0 auto;
+        }
+        
+        #score-container {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            padding: 0 10px;
+        }
+        
+        #controls {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            padding: 12px 25px;
+            font-family: 'Press Start 2P', cursive;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            font-size: 14px;
+        }
+        
+        button:hover {
+            background: #388E3C;
+            transform: translateY(-3px);
+        }
+        
+        #instructions {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.6);
+            font-size: 12px;
+        }
+        
+        #game-over {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.85);
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            color: white;
+            display: none;
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
+            border: 3px solid #FFD700;
+            width: 80%;
+            max-width: 500px;
+            z-index: 100;
+        }
+        
+        #game-over h2 {
+            color: #FFD700;
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+        
+        #game-over p {
+            margin: 15px 0;
+            font-size: 18px;
+        }
+        
+        .ground {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 20px;
+            background: #5C4033;
+        }
+        
+        .ground-pattern {
+            height: 4px;
+            background: linear-gradient(90deg, transparent 0%, #8B4513 10%, #8B4513 20%, transparent 30%);
+            background-size: 30px 100%;
+            animation: ground-move 0.8s linear infinite;
+        }
+        
+        @keyframes ground-move {
+            0% { background-position: 0 0; }
+            100% { background-position: -30px 0; }
+        }
+        
+        h1 {
+            color: white;
+            margin-bottom: 20px;
+            text-shadow: 3px 3px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000;
+            font-size: 36px;
+        }
+        
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s infinite;
+        }
+        
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.2; }
+            50% { opacity: 1; }
+        }
+        
+        #player-registration {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.85);
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            color: white;
+            z-index: 100;
+            width: 90%;
+            max-width: 400px;
+        }
+        
+        #player-registration h2 {
+            color: #4CAF50;
+            margin-bottom: 20px;
+        }
+        
+        #player-registration input {
+            padding: 12px;
+            font-family: 'Press Start 2P', cursive;
+            width: 100%;
+            margin-bottom: 20px;
+            border: 2px solid #4CAF50;
+            border-radius: 5px;
+            background: #222;
+            color: white;
+            text-align: center;
+        }
+        
+        #player-registration p {
+            margin: 10px 0;
+            color: #ff5555;
+            font-size: 12px;
+            display: none;
+        }
+        
+        #ranking {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.9);
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            color: white;
+            z-index: 100;
+            width: 90%;
+            max-width: 500px;
+            display: none;
+        }
+        
+        #ranking h2 {
+            color: #FFD700;
+            margin-bottom: 20px;
+        }
+        
+        #ranking-list {
+            list-style: none;
+            margin: 20px 0;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        #ranking-list li {
+            padding: 10px;
+            margin: 5px 0;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        #ranking-list li:nth-child(1) {
+            background: linear-gradient(90deg, rgba(255, 215, 0, 0.3), rgba(255, 215, 0, 0.1));
+            color: #FFD700;
+            font-weight: bold;
+        }
+        
+        #ranking-list li:nth-child(2) {
+            background: linear-gradient(90deg, rgba(192, 192, 192, 0.3), rgba(192, 192, 192, 0.1));
+            color: #C0C0C0;
+        }
+        
+        #ranking-list li:nth-child(3) {
+            background: linear-gradient(90deg, rgba(205, 127, 50, 0.3), rgba(205, 127, 50, 0.1));
+            color: #CD7F32;
+        }
+        
+        #imisi-event {
+            position: absolute;
+            top: 50px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 48px;
+            color: #ff00ff;
+            text-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff, 0 0 30px #ff00ff;
+            animation: imisi-pulse 1s infinite;
+            display: none;
+            z-index: 50;
+        }
+        
+        @keyframes imisi-pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        #score-multiplier {
+            display: none;
+            color: #ff00ff;
+            font-size: 24px;
+            margin-left: 10px;
+            text-shadow: 0 0 5px #ff00ff;
+            animation: multiplier-pulse 0.5s infinite;
+        }
+        
+        @keyframes multiplier-pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .rgb-skin {
+            animation: rgb-animation 2s infinite;
+        }
+        
+        @keyframes rgb-animation {
+            0% { background-color: #ff0000; }
+            33% { background-color: #00ff00; }
+            66% { background-color: #0000ff; }
+            100% { background-color: #ff0000; }
+        }
+        
+        .top1-badge {
+            display: inline-block;
+            margin-left: 10px;
+            color: #FFD700;
+            animation: spin 2s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        #view-ranking-btn {
+            background: #FFD700;
+            color: #333;
+        }
+        
+        #view-ranking-btn:hover {
+            background: #FFC400;
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 24px;
+            }
+            
+            button {
+                padding: 8px 15px;
+                font-size: 10px;
+            }
+            
+            #instructions {
+                font-size: 10px;
+            }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="game-container">
+        <h1>JOGO DO DINOSSAURO <span id="top1-badge" class="top1-badge" style="display: none;">👑</span></h1>
+        
+        <div id="score-container">
+            <div>Pontuação: <span id="score">0</span><span id="score-multiplier">x3</span></div>
+            <div>Recorde: <span id="high-score">0</span></div>
+        </div>
+        
+        <canvas id="game-canvas" width="800" height="400"></canvas>
+        
+        <div id="imisi-event">IMISI</div>
+        
+        <div class="ground">
+            <div class="ground-pattern"></div>
+        </div>
+        
+        <div id="controls">
+            <button id="play-btn">Jogar</button>
+            <button id="jump-btn">Pular (Espaço)</button>
+            <button id="duck-btn">Abaixar (Seta ↓)</button>
+            <button id="view-ranking-btn">Ver Ranking</button>
+        </div>
+        
+        <div id="instructions">
+            <p>Pressione ESPAÇO para pular | Seta para BAIXO para abaixar</p>
+            <p>Desvie dos cactos e dos pássaros!</p>
+        </div>
+        
+        <div id="game-over">
+            <h2>GAME OVER</h2>
+            <p>Sua pontuação: <span id="final-score">0</span></p>
+            <p>Recorde: <span id="final-high-score">0</span></p>
+            <p id="new-record-message">NOVO RECORDE! PARABÉNS! 🎉</p>
+            <button id="restart-btn">Jogar Novamente</button>
+        </div>
+        
+        <div id="player-registration">
+            <h2>REGISTRO DE JOGADOR</h2>
+            <input type="text" id="player-name" placeholder="Digite seu nickname" maxlength="12">
+            <p id="name-error">Nickname já está em uso. Escolha outro.</p>
+            <button id="register-btn">Registrar</button>
+        </div>
+        
+        <div id="ranking">
+            <h2>RANKING TOP 10</h2>
+            <ul id="ranking-list"></ul>
+            <button id="close-ranking-btn">Fechar</button>
+        </div>
+    </div>
+
+    <script>
+        // Configuração do jogo
+        const canvas = document.getElementById('game-canvas');
+        const ctx = canvas.getContext('2d');
+        const scoreElement = document.getElementById('score');
+        const highScoreElement = document.getElementById('high-score');
+        const playBtn = document.getElementById('play-btn');
+        const jumpBtn = document.getElementById('jump-btn');
+        const duckBtn = document.getElementById('duck-btn');
+        const gameOverScreen = document.getElementById('game-over');
+        const finalScoreElement = document.getElementById('final-score');
+        const finalHighScoreElement = document.getElementById('final-high-score');
+        const newRecordMessage = document.getElementById('new-record-message');
+        const restartBtn = document.getElementById('restart-btn');
+        const playerRegistration = document.getElementById('player-registration');
+        const playerNameInput = document.getElementById('player-name');
+        const registerBtn = document.getElementById('register-btn');
+        const nameError = document.getElementById('name-error');
+        const rankingScreen = document.getElementById('ranking');
+        const rankingList = document.getElementById('ranking-list');
+        const viewRankingBtn = document.getElementById('view-ranking-btn');
+        const closeRankingBtn = document.getElementById('close-ranking-btn');
+        const imisiEvent = document.getElementById('imisi-event');
+        const scoreMultiplier = document.getElementById('score-multiplier');
+        const top1Badge = document.getElementById('top1-badge');
+        
+        // Variáveis do jogo
+        let gameSpeed = 8; // Velocidade inicial aumentada para maior dificuldade
+        let score = 0;
+        let highScore = 0;
+        let gameActive = false;
+        let frameCount = 0;
+        let obstacles = [];
+        let clouds = [];
+        let stars = [];
+        let currentPlayer = null;
+        let playerData = {};
+        let imisiActive = false;
+        let imisiTimer = 0;
+        let hasTop1Skin = false;
+        let lastObstacleTime = 0;
+        let minObstacleGap = 90; // Distância mínima entre obstáculos (aumentada)
+        
+        // Inicializar dados dos jogadores
+        function initPlayerData() {
+            const savedData = localStorage.getItem('dinoPlayers');
+            if (savedData) {
+                playerData = JSON.parse(savedData);
+            }
+        }
+        
+        // Verificar se o nome já existe
+        function playerNameExists(name) {
+            return playerData.hasOwnProperty(name.toLowerCase());
+        }
+        
+        // Registrar novo jogador
+        function registerPlayer(name) {
+            if (!playerNameExists(name)) {
+                playerData[name.toLowerCase()] = {
+                    name: name,
+                    highScore: 0,
+                    isTop1: false
+                };
+                localStorage.setItem('dinoPlayers', JSON.stringify(playerData));
+                currentPlayer = name;
+                return true;
+            }
+            return false;
+        }
+        
+        // Atualizar recorde do jogador
+        function updatePlayerHighScore(score) {
+            if (currentPlayer && score > playerData[currentPlayer.toLowerCase()].highScore) {
+                playerData[currentPlayer.toLowerCase()].highScore = score;
+                localStorage.setItem('dinoPlayers', JSON.stringify(playerData));
+                
+                // Verificar se é o primeiro lugar
+                updateTop1Status();
+            }
+        }
+        
+        // Atualizar status de top 1
+        function updateTop1Status() {
+            const players = Object.values(playerData);
+            if (players.length > 0) {
+                // Encontrar a maior pontuação
+                const topScore = Math.max(...players.map(p => p.highScore));
+                
+                // Remover status de top 1 de todos
+                for (let key in playerData) {
+                    playerData[key].isTop1 = false;
+                }
+                
+                // Definir novo top 1
+                for (let key in playerData) {
+                    if (playerData[key].highScore === topScore && topScore > 0) {
+                        playerData[key].isTop1 = true;
+                        break;
+                    }
+                }
+                
+                localStorage.setItem('dinoPlayers', JSON.stringify(playerData));
+                
+                // Verificar se o jogador atual é o top 1
+                if (currentPlayer && playerData[currentPlayer.toLowerCase()]?.isTop1) {
+                    hasTop1Skin = true;
+                    top1Badge.style.display = 'inline-block';
+                } else {
+                    hasTop1Skin = false;
+                    top1Badge.style.display = 'none';
+                }
+            }
+        }
+        
+        // Gerar ranking
+        function generateRanking() {
+            const players = Object.values(playerData);
+            // Ordenar por pontuação (maior primeiro)
+            players.sort((a, b) => b.highScore - a.highScore);
+            
+            rankingList.innerHTML = '';
+            
+            // Mostrar apenas os top 10
+            const topPlayers = players.slice(0, 10);
+            
+            topPlayers.forEach((player, index) => {
+                const li = document.createElement('li');
+                li.innerHTML = `<span>${index + 1}. ${player.name} ${player.isTop1 ? '👑' : ''}</span><span>${player.highScore}</span>`;
+                rankingList.appendChild(li);
+            });
+            
+            if (topPlayers.length === 0) {
+                const li = document.createElement('li');
+                li.textContent = 'Nenhum jogador registrado ainda';
+                rankingList.appendChild(li);
+            }
+        }
+        
+        // Criar estrelas de fundo
+        function createStars() {
+            stars = [];
+            for (let i = 0; i < 50; i++) {
+                stars.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * (canvas.height / 2),
+                    size: Math.random() * 2 + 1,
+                    opacity: Math.random() * 0.5 + 0.3
+                });
+            }
+        }
+        
+        createStars();
+        
+        // Sprites em pixel art
+        function drawPixelDino(x, y, isDucking, frame, isRgb) {
+            // Corpo do dinossauro
+            if (isRgb) {
+                // Modo RGB - cor muda continuamente
+                const hue = (frameCount % 100) * 3.6;
+                ctx.fillStyle = `hsl(${hue}, 100%, 50%)`;
+            } else {
+                ctx.fillStyle = '#535353';
+            }
+            
+            if (isDucking) {
+                // Dinossauro agachado
+                ctx.fillRect(x, y + 20, 45, 25);
+                ctx.fillRect(x + 5, y + 15, 35, 5);
+                
+                // Olho
+                ctx.fillStyle = '#000';
+                ctx.fillRect(x + 35, y + 20, 3, 3);
+            } else {
+                // Pernas traseiras
+                if (frame === 0) {
+                    ctx.fillRect(x - 8, y + 30, 15, 25);
+                } else {
+                    ctx.fillRect(x - 8, y + 35, 15, 20);
+                }
+                
+                // Corpo
+                ctx.fillRect(x, y, 30, 50);
+                
+                // Pescoço e cabeça
+                ctx.fillRect(x + 20, y - 15, 20, 20);
+                
+                // Olho
+                ctx.fillStyle = '#000';
+                ctx.fillRect(x + 35, y - 10, 3, 3);
+                
+                // Patas dianteiras
+                if (frame === 0) {
+                    ctx.fillRect(x + 15, y + 40, 15, 10);
+                } else {
+                    ctx.fillRect(x + 10, y + 40, 15, 10);
+                }
+                
+                // Cauda
+                ctx.fillRect(x - 15, y + 5, 15, 5);
+            }
+        }
+        
+        function drawPixelCactus(x, y, type) {
+            ctx.fillStyle = '#0A7029';
+            
+            switch(type) {
+                case 0: // Cacto pequeno
+                    ctx.fillRect(x, y - 30, 15, 30);
+                    ctx.fillRect(x - 5, y - 20, 25, 5);
+                    break;
+                    
+                case 1: // Cacto médio
+                    ctx.fillRect(x, y - 40, 15, 40);
+                    ctx.fillRect(x - 5, y - 25, 25, 5);
+                    ctx.fillRect(x - 3, y - 35, 5, 10);
+                    break;
+                    
+                case 2: // Cacto grande
+                    ctx.fillRect(x, y - 50, 15, 50);
+                    ctx.fillRect(x - 5, y - 30, 25, 5);
+                    ctx.fillRect(x - 3, y - 40, 5, 10);
+                    ctx.fillRect(x + 13, y - 45, 5, 10);
+                    break;
+                    
+                case 3: // Cacto agrupado (mais difícil)
+                    ctx.fillRect(x, y - 40, 15, 40);
+                    ctx.fillRect(x + 15, y - 30, 15, 30);
+                    ctx.fillRect(x - 5, y - 20, 40, 5);
+                    break;
+                    
+                case 4: // Cacto duplo (novo obstáculo)
+                    ctx.fillRect(x, y - 40, 15, 40);
+                    ctx.fillRect(x + 20, y - 50, 15, 50);
+                    break;
+            }
+        }
+        
+        function drawPixelBird(x, y, frame) {
+            ctx.fillStyle = '#9C2727';
+            
+            // Corpo
+            ctx.fillRect(x, y, 30, 15);
+            
+            // Asas
+            if (frame === 0) {
+                ctx.fillRect(x + 20, y - 10, 15, 10);
+            } else {
+                ctx.fillRect(x + 20, y + 15, 15, 10);
+            }
+            
+            // Bico
+            ctx.fillRect(x + 30, y + 5, 10, 5);
+            
+            // Olho
+            ctx.fillStyle = '#000';
+            ctx.fillRect(x + 25, y + 3, 3, 3);
+        }
+        
+        // Classes do jogo
+        class Dino {
+            constructor() {
+                this.x = 50;
+                this.y = canvas.height - 80;
+                this.width = 50;
+                this.height = 70;
+                this.jumpForce = 16; // Aumentei a força do pulo
+                this.velocity = 0;
+                this.gravity = 0.7; // Aumentei a gravidade
+                this.isJumping = false;
+                this.isDucking = false;
+                this.frame = 0;
+            }
+            
+            update() {
+                // Aplicar gravidade
+                this.velocity += this.gravity;
+                this.y += this.velocity;
+                
+                // Impedir que o dinossauro saia da tela
+                if (this.y > canvas.height - 80) {
+                    this.y = canvas.height - 80;
+                    this.isJumping = false;
+                    this.velocity = 0;
+                }
+                
+                // Animação
+                if (!this.isJumping && !this.isDucking) {
+                    this.frame = frameCount % 20 < 10 ? 0 : 1;
+                }
+            }
+            
+            draw() {
+                drawPixelDino(this.x, this.y, this.isDucking, this.frame, hasTop1Skin);
+            }
+            
+            jump() {
+                if (!this.isJumping) {
+                    this.velocity = -this.jumpForce;
+                    this.isJumping = true;
+                    this.frame = 0;
+                }
+            }
+            
+            duck() {
+                this.isDucking = true;
+                this.height = 40;
+                this.width = 60;
+            }
+            
+            stand() {
+                this.isDucking = false;
+                this.height = 70;
+                this.width = 50;
+            }
+        }
+
+        class Obstacle {
+            constructor(type) {
+                this.type = type;
+                this.width = type === 'bird' ? 50 : (type === 'cactusGroup' ? 45 : 30);
+                this.height = type === 'bird' ? 20 : (type === 'cactusGroup' ? 40 : 50);
+                this.x = canvas.width;
+                
+                // Ajustar a altura baseado no tipo
+                if (this.type === 'bird') {
+                    // Pássaros voam em diferentes alturas
+                    const birdHeight = Math.random() < 0.5 ? 50 : 100;
+                    this.y = canvas.height - 20 - birdHeight;
+                } else {
+                    // Cactos ficam no chão
+                    this.y = canvas.height - 20;
+                }
+                
+                this.speed = gameSpeed;
+                this.frame = 0;
+                
+                // Para cactos, definir um tipo específico
+                if (this.type === 'cactus') {
+                    this.cactusType = Math.floor(Math.random() * 5); // 5 tipos agora
+                } else if (this.type === 'cactusGroup') {
+                    this.cactusType = 3; // Tipo agrupado
+                }
+            }
+            
+            update() {
+                this.x -= this.speed;
+                
+                // Animação do pássaro
+                if (this.type === 'bird') {
+                    this.frame = frameCount % 15 < 8 ? 0 : 1; // Animação mais rápida
+                }
+            }
+            
+            draw() {
+                if (this.type === 'bird') {
+                    drawPixelBird(this.x, this.y, this.frame);
+                } else if (this.type === 'cactusGroup') {
+                    drawPixelCactus(this.x, this.y, this.cactusType);
+                } else {
+                    drawPixelCactus(this.x, this.y, this.cactusType);
+                }
+            }
+        }
+
+        class Cloud {
+            constructor() {
+                this.x = canvas.width;
+                this.y = Math.random() * 100 + 20;
+                this.width = Math.random() * 40 + 40;
+                this.height = 20;
+                this.speed = Math.random() * 1 + 1;
+            }
+            
+            update() {
+                this.x -= this.speed;
+            }
+            
+            draw() {
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+                ctx.beginPath();
+                ctx.ellipse(this.x, this.y, this.width/2, this.height/2, 0, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+        
+        // Inicializar o dinossauro
+        const dino = new Dino();
+        
+        // Funções do jogo
+        function createObstacle() {
+            // Aumentar a frequência de obstáculos com base na pontuação
+            let obstacleFrequency = 80 - Math.min(70, Math.floor(score / 10));
+            
+            // Garantir distância mínima entre obstáculos
+            if (frameCount - lastObstacleTime > minObstacleGap) {
+                let type;
+                const rand = Math.random();
+                
+                if (rand < 0.4) {
+                    type = 'cactus';
+                } else if (rand < 0.7) {
+                    type = 'bird';
+                } else {
+                    type = 'cactusGroup'; // Novo tipo de obstáculo
+                }
+                
+                obstacles.push(new Obstacle(type));
+                lastObstacleTime = frameCount;
+                
+                // Aumentar dificuldade reduzindo o gap mínimo gradualmente
+                minObstacleGap = Math.max(40, 90 - Math.floor(score / 50));
+            }
+        }
+        
+        function createCloud() {
+            if (frameCount % 100 === 0) {
+                clouds.push(new Cloud());
+            }
+        }
+        
+        function checkCollisions() {
+            for (let obstacle of obstacles) {
+                // Detecção de colisão melhorada
+                let dinoRight = dino.x + dino.width - 10;
+                let dinoBottom = dino.y + dino.height;
+                let dinoLeft = dino.x + 5;
+                
+                let obstacleRight = obstacle.x + obstacle.width;
+                let obstacleBottom = obstacle.y + obstacle.height;
+                let obstacleLeft = obstacle.x;
+                
+                // Ajuste para quando estiver agachado
+                if (dino.isDucking) {
+                    dinoBottom = dino.y + 40;
+                    dinoRight = dino.x + 45;
+                }
+                
+                // Verificar colisão
+                if (
+                    dinoLeft < obstacleRight &&
+                    dinoRight > obstacleLeft &&
+                    dino.y < obstacleBottom &&
+                    dinoBottom > obstacle.y
+                ) {
+                    // Verificação adicional para pássaros - só colide se o dinossauro não estiver agachado
+                    if (obstacle.type === 'bird' && dino.isDucking && dinoBottom < obstacle.y + 10) {
+                        // Não colidir com pássaros se estiver agachado e o pássaro estiver voando alto
+                        continue;
+                    }
+                    
+                    gameOver();
+                    return;
+                }
+            }
+        }
+        
+        function updateScore() {
+            if (frameCount % 5 === 0) {
+                score += imisiActive ? 3 : 1;
+                scoreElement.textContent = score;
+                
+                // Aumentar a velocidade a cada 100 pontos
+                if (score % 100 === 0) {
+                    gameSpeed += 0.5;
+                }
+            }
+        }
+        
+        function checkImisiEvent() {
+            // 0.5% de chance a cada 100 frames para ativar o evento IMISI
+            if (!imisiActive && frameCount % 100 === 0 && Math.random() < 0.005) {
+                imisiActive = true;
+                imisiTimer = 600; // 10 segundos em 60fps
+                imisiEvent.style.display = 'block';
+                scoreMultiplier.style.display = 'inline';
+                
+                // Esconder após 0.5 segundos (30 frames)
+                setTimeout(() => {
+                    imisiEvent.style.display = 'none';
+                }, 500);
+            }
+            
+            // Gerenciar o tempo do evento IMISI
+            if (imisiActive) {
+                imisiTimer--;
+                
+                if (imisiTimer <= 0) {
+                    imisiActive = false;
+                    scoreMultiplier.style.display = 'none';
+                }
+            }
+        }
+        
+        function gameOver() {
+            gameActive = false;
+            
+            // Atualizar recorde do jogador
+            if (currentPlayer) {
+                updatePlayerHighScore(score);
+            }
+            
+            // Verificar se é um novo recorde
+            if (score > highScore) {
+                highScore = score;
+                highScoreElement.textContent = highScore;
+                newRecordMessage.style.display = 'block';
+                
+                // Tocar som de vitória
+                playVictorySound();
+            } else {
+                newRecordMessage.style.display = 'none';
+            }
+            
+            finalScoreElement.textContent = score;
+            finalHighScoreElement.textContent = highScore;
+            gameOverScreen.style.display = 'block';
+        }
+        
+        function playVictorySound() {
+            try {
+                // Criar um contexto de áudio
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                
+                // Criar um oscilador
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                // Conectar os nós
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                // Configurar as notas da melodia (uma sequência simples)
+                oscillator.frequency.setValueAtTime(523.25, audioContext.currentTime); // C5
+                oscillator.frequency.setValueAtTime(659.25, audioContext.currentTime + 0.1); // E5
+                oscillator.frequency.setValueAtTime(783.99, audioContext.currentTime + 0.2); // G5
+                oscillator.frequency.setValueAtTime(1046.50, audioContext.currentTime + 0.3); // C6
+                
+                // Configurar o volume
+                gainNode.gain.setValueAtTime(0.5, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+                
+                // Tocar o som
+                oscillator.start();
+                oscillator.stop(audioContext.currentTime + 0.5);
+            } catch (e) {
+                console.log("Áudio não suportado neste navegador");
+            }
+        }
+        
+        function drawGround() {
+            // Desenhar o chão
+            ctx.fillStyle = '#5C4033';
+            ctx.fillRect(0, canvas.height - 20, canvas.width, 20);
+            
+            // Padrão de textura do chão
+            ctx.fillStyle = '#8B4513';
+            for (let i = 0; i < canvas.width; i += 30) {
+                const x = (i - frameCount * gameSpeed % 30) % canvas.width;
+                ctx.fillRect(x, canvas.height - 5, 15, 3);
+            }
+        }
+        
+        function drawMoon() {
+            ctx.fillStyle = '#FFEB3B';
+            ctx.beginPath();
+            ctx.arc(700, 50, 25, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        
+        function drawStars() {
+            for (let star of stars) {
+                ctx.fillStyle = `rgba(255, 255, 255, ${star.opacity})`;
+                ctx.beginPath();
+                ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+        
+        function resetGame() {
+            score = 0;
+            scoreElement.textContent = score;
+            obstacles = [];
+            clouds = [];
+            gameSpeed = 8; // Velocidade inicial aumentada
+            frameCount = 0;
+            dino.x = 50;
+            dino.y = canvas.height - 80;
+            dino.velocity = 0;
+            dino.isJumping = false;
+            dino.isDucking = false;
+            imisiActive = false;
+            imisiTimer = 0;
+            scoreMultiplier.style.display = 'none';
+            gameOverScreen.style.display = 'none';
+            lastObstacleTime = 0;
+            minObstacleGap = 90;
+        }
+        
+        function gameLoop() {
+            // Limpar o canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Desenhar fundo noturno
+            ctx.fillStyle = '#0D1B2A';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            drawStars();
+            drawMoon();
+            
+            // Atualizar e desenhar nuvens
+            for (let i = clouds.length - 1; i >= 0; i--) {
+                clouds[i].update();
+                clouds[i].draw();
+                
+                if (clouds[i].x + clouds[i].width < 0) {
+                    clouds.splice(i, 1);
+                }
+            }
+            
+            drawGround();
+            
+            if (gameActive) {
+                // Atualizar e desenhar dinossauro
+                dino.update();
+                dino.draw();
+                
+                // Criar obstáculos e nuvens
+                createObstacle();
+                createCloud();
+                
+                // Verificar evento IMISI
+                checkImisiEvent();
+                
+                // Atualizar e desenhar obstáculos
+                for (let i = obstacles.length - 1; i >= 0; i--) {
+                    obstacles[i].update();
+                    obstacles[i].draw();
+                    
+                    if (obstacles[i].x + obstacles[i].width < 0) {
+                        obstacles.splice(i, 1);
+                    }
+                }
+                
+                // Verificar colisões
+                checkCollisions();
+                
+                // Atualizar pontuação
+                updateScore();
+                
+                // Incrementar contador de frames
+                frameCount++;
+            } else {
+                // Tela inicial - mostrar dinossauro parado
+                drawPixelDino(dino.x, dino.y, false, 0, hasTop1Skin);
+                
+                // Texto de início
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                ctx.fillStyle = '#4CAF50';
+                ctx.font = '30px "Press Start 2P", cursive';
+                ctx.textAlign = 'center';
+                ctx.fillText('JOGO DO DINOSSAURO', canvas.width/2, canvas.height/2 - 40);
+                
+                ctx.fillStyle = '#FFF';
+                ctx.font = '16px "Press Start 2P", cursive';
+                ctx.fillText('PRESSIONE "JOGAR" PARA COMEÇAR', canvas.width/2, canvas.height/2 + 20);
+            }
+            
+            requestAnimationFrame(gameLoop);
+        }
+        
+        // Inicializar dados dos jogadores
+        initPlayerData();
+        
+        // Verificar se já tem um jogador registrado
+        if (Object.keys(playerData).length > 0 && localStorage.getItem('lastPlayer')) {
+            currentPlayer = localStorage.getItem('lastPlayer');
+            playerRegistration.style.display = 'none';
+            highScore = playerData[currentPlayer.toLowerCase()].highScore;
+            highScoreElement.textContent = highScore;
+            updateTop1Status();
+        } else {
+            playerRegistration.style.display = 'block';
+        }
+        
+        // Iniciar o loop do jogo
+        gameLoop();
+        
+        // Event listeners
+        playBtn.addEventListener('click', () => {
+            if (!gameActive && currentPlayer) {
+                gameActive = true;
+                resetGame();
+            }
+        });
+        
+        restartBtn.addEventListener('click', () => {
+            if (currentPlayer) {
+                gameActive = true;
+                resetGame();
+            }
+        });
+        
+        registerBtn.addEventListener('click', () => {
+            const name = playerNameInput.value.trim();
+            if (name.length < 2) {
+                nameError.textContent = "Nickname muito curto (mín. 2 caracteres)";
+                nameError.style.display = 'block';
+                return;
+            }
+            
+            if (name.length > 12) {
+                nameError.textContent = "Nickname muito longo (máx. 12 caracteres)";
+                nameError.style.display = 'block';
+                return;
+            }
+            
+            if (registerPlayer(name)) {
+                playerRegistration.style.display = 'none';
+                highScore = 0;
+                highScoreElement.textContent = highScore;
+                localStorage.setItem('lastPlayer', name);
+                updateTop1Status();
+            } else {
+                nameError.textContent = "Nickname já está em uso. Escolha outro.";
+                nameError.style.display = 'block';
+            }
+        });
+        
+        viewRankingBtn.addEventListener('click', () => {
+            generateRanking();
+            rankingScreen.style.display = 'block';
+        });
+        
+        closeRankingBtn.addEventListener('click', () => {
+            rankingScreen.style.display = 'none';
+        });
+        
+        jumpBtn.addEventListener('click', () => {
+            if (gameActive) {
+                dino.jump();
+            }
+        });
+        
+        duckBtn.addEventListener('mousedown', () => {
+            if (gameActive) {
+                dino.duck();
+            }
+        });
+        
+        duckBtn.addEventListener('mouseup', () => {
+            if (gameActive) {
+                dino.stand();
+            }
+        });
+        
+        // Controles de teclado
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' && gameActive) {
+                dino.jump();
+                e.preventDefault();
+            }
+            
+            if (e.code === 'ArrowDown' && gameActive) {
+                dino.duck();
+            }
+        });
+        
+        document.addEventListener('keyup', (e) => {
+            if (e.code === 'ArrowDown' && gameActive) {
+                dino.stand();
+            }
+        });
+    </script>
+</body>
+</html>
