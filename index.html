@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jogo do Dinossauro - Versão Difícil</title>
+    <title>Jogo do Dinossauro - Ranking Corrigido</title>
     <style>
         * {
             margin: 0;
@@ -210,6 +210,7 @@
         #ranking h2 {
             color: #FFD700;
             margin-bottom: 20px;
+            font-size: 20px;
         }
         
         #ranking-list {
@@ -404,7 +405,7 @@
         const top1Badge = document.getElementById('top1-badge');
         
         // Variáveis do jogo
-        let gameSpeed = 9; // Velocidade inicial aumentada para maior dificuldade
+        let gameSpeed = 9;
         let score = 0;
         let highScore = 0;
         let gameActive = false;
@@ -418,13 +419,29 @@
         let imisiTimer = 0;
         let hasTop1Skin = false;
         let lastObstacleTime = 0;
-        let minObstacleGap = 80; // Distância mínima entre obstáculos (reduzida para maior dificuldade)
+        let minObstacleGap = 80;
         
         // Inicializar dados dos jogadores
         function initPlayerData() {
             const savedData = localStorage.getItem('dinoPlayers');
             if (savedData) {
                 playerData = JSON.parse(savedData);
+            } else {
+                // Dados de exemplo para demonstração
+                playerData = {
+                    'player1': { name: 'Player1', highScore: 850, isTop1: false },
+                    'player2': { name: 'Player2', highScore: 720, isTop1: false },
+                    'player3': { name: 'Player3', highScore: 630, isTop1: false },
+                    'player4': { name: 'Player4', highScore: 580, isTop1: false },
+                    'player5': { name: 'Player5', highScore: 520, isTop1: false },
+                    'player6': { name: 'Player6', highScore: 450, isTop1: false },
+                    'player7': { name: 'Player7', highScore: 380, isTop1: false },
+                    'player8': { name: 'Player8', highScore: 320, isTop1: false },
+                    'player9': { name: 'Player9', highScore: 250, isTop1: false },
+                    'player10': { name: 'Player10', highScore: 180, isTop1: false }
+                };
+                updateTop1Status();
+                localStorage.setItem('dinoPlayers', JSON.stringify(playerData));
             }
         }
         
@@ -471,11 +488,12 @@
                     playerData[key].isTop1 = false;
                 }
                 
-                // Definir novo top 1
+                // Definir novo top 1 (pode haver empate)
+                let hasTop1 = false;
                 for (let key in playerData) {
                     if (playerData[key].highScore === topScore && topScore > 0) {
                         playerData[key].isTop1 = true;
-                        break;
+                        hasTop1 = true;
                     }
                 }
                 
@@ -692,6 +710,25 @@
                 this.height = 70;
                 this.width = 50;
             }
+            
+            // Método para obter a hitbox atual do dinossauro
+            getHitbox() {
+                if (this.isDucking) {
+                    return {
+                        x: this.x,
+                        y: this.y + 20,
+                        width: 45,
+                        height: 25
+                    };
+                } else {
+                    return {
+                        x: this.x,
+                        y: this.y,
+                        width: 30,
+                        height: 50
+                    };
+                }
+            }
         }
 
         class Obstacle {
@@ -739,6 +776,32 @@
                 } else {
                     drawPixelCactus(this.x, this.y, this.cactusType);
                 }
+            }
+            
+            // Método para obter a hitbox do obstáculo
+            getHitbox() {
+                if (this.type === 'bird') {
+                    return {
+                        x: this.x,
+                        y: this.y,
+                        width: 35,
+                        height: 20
+                    };
+                } else {
+                    switch(this.cactusType) {
+                        case 0:
+                            return { x: this.x, y: this.y - 40, width: 20, height: 40 };
+                        case 1:
+                            return { x: this.x, y: this.y - 50, width: 20, height: 50 };
+                        case 2:
+                            return { x: this.x, y: this.y - 60, width: 20, height: 60 };
+                        case 3:
+                            return { x: this.x, y: this.y - 50, width: 55, height: 50 };
+                        case 4:
+                            return { x: this.x, y: this.y - 60, width: 50, height: 60 };
+                    }
+                }
+                return { x: this.x, y: this.y, width: this.width, height: this.height };
             }
         }
 
@@ -800,32 +863,21 @@
         }
         
         function checkCollisions() {
+            const dinoHitbox = dino.getHitbox();
+            
             for (let obstacle of obstacles) {
-                // Detecção de colisão melhorada
-                let dinoRight = dino.x + dino.width - 10;
-                let dinoBottom = dino.y + dino.height;
-                let dinoLeft = dino.x + 5;
+                const obstacleHitbox = obstacle.getHitbox();
                 
-                let obstacleRight = obstacle.x + obstacle.width;
-                let obstacleBottom = obstacle.y + obstacle.height;
-                let obstacleLeft = obstacle.x;
-                
-                // Ajuste para quando estiver agachado
-                if (dino.isDucking) {
-                    dinoBottom = dino.y + 40;
-                    dinoRight = dino.x + 45;
-                }
-                
-                // Verificar colisão
+                // Detecção de colisão precisa
                 if (
-                    dinoLeft < obstacleRight &&
-                    dinoRight > obstacleLeft &&
-                    dino.y < obstacleBottom &&
-                    dinoBottom > obstacle.y
+                    dinoHitbox.x < obstacleHitbox.x + obstacleHitbox.width &&
+                    dinoHitbox.x + dinoHitbox.width > obstacleHitbox.x &&
+                    dinoHitbox.y < obstacleHitbox.y + obstacleHitbox.height &&
+                    dinoHitbox.y + dinoHitbox.height > obstacleHitbox.y
                 ) {
-                    // Verificação adicional para pássaros - só colide se o dinossauro não estiver agachado
-                    if (obstacle.type === 'bird' && dino.isDucking && dinoBottom < obstacle.y + 15) {
-                        // Não colidir com pássaros se estiver agachado e o pássaro estiver voando baixo
+                    // Verificação adicional para pássaros - não colidir se o dinossauro estiver agachado e o pássaro estiver voando alto
+                    if (obstacle.type === 'bird' && dino.isDucking && obstacle.y < canvas.height - 70) {
+                        // Pássaro voando alto - dinossauro agachado não colide
                         continue;
                     }
                     
