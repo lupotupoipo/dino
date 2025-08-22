@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jogo do Dinossauro - Versão Avançada</title>
+    <title>Jogo do Dinossauro - Versão Difícil</title>
     <style>
         * {
             margin: 0;
@@ -404,7 +404,7 @@
         const top1Badge = document.getElementById('top1-badge');
         
         // Variáveis do jogo
-        let gameSpeed = 8; // Velocidade inicial aumentada para maior dificuldade
+        let gameSpeed = 9; // Velocidade inicial aumentada para maior dificuldade
         let score = 0;
         let highScore = 0;
         let gameActive = false;
@@ -418,7 +418,7 @@
         let imisiTimer = 0;
         let hasTop1Skin = false;
         let lastObstacleTime = 0;
-        let minObstacleGap = 90; // Distância mínima entre obstáculos (aumentada)
+        let minObstacleGap = 80; // Distância mínima entre obstáculos (reduzida para maior dificuldade)
         
         // Inicializar dados dos jogadores
         function initPlayerData() {
@@ -584,33 +584,33 @@
             ctx.fillStyle = '#0A7029';
             
             switch(type) {
-                case 0: // Cacto pequeno
-                    ctx.fillRect(x, y - 30, 15, 30);
-                    ctx.fillRect(x - 5, y - 20, 25, 5);
+                case 0: // Cacto pequeno (aumentado)
+                    ctx.fillRect(x, y - 40, 20, 40);
+                    ctx.fillRect(x - 7, y - 25, 34, 7);
                     break;
                     
-                case 1: // Cacto médio
-                    ctx.fillRect(x, y - 40, 15, 40);
-                    ctx.fillRect(x - 5, y - 25, 25, 5);
-                    ctx.fillRect(x - 3, y - 35, 5, 10);
+                case 1: // Cacto médio (aumentado)
+                    ctx.fillRect(x, y - 50, 20, 50);
+                    ctx.fillRect(x - 7, y - 30, 34, 7);
+                    ctx.fillRect(x - 4, y - 45, 8, 15);
                     break;
                     
-                case 2: // Cacto grande
-                    ctx.fillRect(x, y - 50, 15, 50);
-                    ctx.fillRect(x - 5, y - 30, 25, 5);
-                    ctx.fillRect(x - 3, y - 40, 5, 10);
-                    ctx.fillRect(x + 13, y - 45, 5, 10);
+                case 2: // Cacto grande (aumentado)
+                    ctx.fillRect(x, y - 60, 20, 60);
+                    ctx.fillRect(x - 7, y - 35, 34, 7);
+                    ctx.fillRect(x - 4, y - 50, 8, 15);
+                    ctx.fillRect(x + 16, y - 55, 8, 15);
                     break;
                     
-                case 3: // Cacto agrupado (mais difícil)
-                    ctx.fillRect(x, y - 40, 15, 40);
-                    ctx.fillRect(x + 15, y - 30, 15, 30);
-                    ctx.fillRect(x - 5, y - 20, 40, 5);
+                case 3: // Cacto agrupado (mais difícil e maior)
+                    ctx.fillRect(x, y - 50, 20, 50);
+                    ctx.fillRect(x + 20, y - 40, 20, 40);
+                    ctx.fillRect(x - 7, y - 25, 54, 7);
                     break;
                     
-                case 4: // Cacto duplo (novo obstáculo)
-                    ctx.fillRect(x, y - 40, 15, 40);
-                    ctx.fillRect(x + 20, y - 50, 15, 50);
+                case 4: // Cacto duplo (maior)
+                    ctx.fillRect(x, y - 50, 20, 50);
+                    ctx.fillRect(x + 25, y - 60, 20, 60);
                     break;
             }
         }
@@ -618,22 +618,22 @@
         function drawPixelBird(x, y, frame) {
             ctx.fillStyle = '#9C2727';
             
-            // Corpo
-            ctx.fillRect(x, y, 30, 15);
+            // Corpo (aumentado)
+            ctx.fillRect(x, y, 35, 20);
             
-            // Asas
+            // Asas (aumentadas)
             if (frame === 0) {
-                ctx.fillRect(x + 20, y - 10, 15, 10);
+                ctx.fillRect(x + 25, y - 12, 18, 12);
             } else {
-                ctx.fillRect(x + 20, y + 15, 15, 10);
+                ctx.fillRect(x + 25, y + 20, 18, 12);
             }
             
-            // Bico
-            ctx.fillRect(x + 30, y + 5, 10, 5);
+            // Bico (aumentado)
+            ctx.fillRect(x + 35, y + 7, 12, 6);
             
             // Olho
             ctx.fillStyle = '#000';
-            ctx.fillRect(x + 25, y + 3, 3, 3);
+            ctx.fillRect(x + 30, y + 5, 4, 4);
         }
         
         // Classes do jogo
@@ -643,9 +643,9 @@
                 this.y = canvas.height - 80;
                 this.width = 50;
                 this.height = 70;
-                this.jumpForce = 16; // Aumentei a força do pulo
+                this.jumpForce = 16;
                 this.velocity = 0;
-                this.gravity = 0.7; // Aumentei a gravidade
+                this.gravity = 0.7;
                 this.isJumping = false;
                 this.isDucking = false;
                 this.frame = 0;
@@ -697,14 +697,14 @@
         class Obstacle {
             constructor(type) {
                 this.type = type;
-                this.width = type === 'bird' ? 50 : (type === 'cactusGroup' ? 45 : 30);
-                this.height = type === 'bird' ? 20 : (type === 'cactusGroup' ? 40 : 50);
+                this.width = type === 'bird' ? 55 : (type === 'cactusGroup' ? 55 : 35);
+                this.height = type === 'bird' ? 25 : (type === 'cactusGroup' ? 50 : 60);
                 this.x = canvas.width;
                 
                 // Ajustar a altura baseado no tipo
                 if (this.type === 'bird') {
-                    // Pássaros voam em diferentes alturas
-                    const birdHeight = Math.random() < 0.5 ? 50 : 100;
+                    // Pássaros voam em diferentes alturas - agora mais baixos para forçar o agachar
+                    const birdHeight = Math.random() < 0.7 ? 40 : 80; // 70% de chance de voar baixo
                     this.y = canvas.height - 20 - birdHeight;
                 } else {
                     // Cactos ficam no chão
@@ -716,9 +716,9 @@
                 
                 // Para cactos, definir um tipo específico
                 if (this.type === 'cactus') {
-                    this.cactusType = Math.floor(Math.random() * 5); // 5 tipos agora
+                    this.cactusType = Math.floor(Math.random() * 5);
                 } else if (this.type === 'cactusGroup') {
-                    this.cactusType = 3; // Tipo agrupado
+                    this.cactusType = 3;
                 }
             }
             
@@ -727,7 +727,7 @@
                 
                 // Animação do pássaro
                 if (this.type === 'bird') {
-                    this.frame = frameCount % 15 < 8 ? 0 : 1; // Animação mais rápida
+                    this.frame = frameCount % 15 < 8 ? 0 : 1;
                 }
             }
             
@@ -769,26 +769,27 @@
         // Funções do jogo
         function createObstacle() {
             // Aumentar a frequência de obstáculos com base na pontuação
-            let obstacleFrequency = 80 - Math.min(70, Math.floor(score / 10));
+            let obstacleFrequency = 70 - Math.min(60, Math.floor(score / 10));
             
             // Garantir distância mínima entre obstáculos
             if (frameCount - lastObstacleTime > minObstacleGap) {
                 let type;
                 const rand = Math.random();
                 
+                // Aumentar a probabilidade de pássaros (agora 40% de chance)
                 if (rand < 0.4) {
-                    type = 'cactus';
-                } else if (rand < 0.7) {
                     type = 'bird';
+                } else if (rand < 0.75) {
+                    type = 'cactus';
                 } else {
-                    type = 'cactusGroup'; // Novo tipo de obstáculo
+                    type = 'cactusGroup';
                 }
                 
                 obstacles.push(new Obstacle(type));
                 lastObstacleTime = frameCount;
                 
                 // Aumentar dificuldade reduzindo o gap mínimo gradualmente
-                minObstacleGap = Math.max(40, 90 - Math.floor(score / 50));
+                minObstacleGap = Math.max(35, 80 - Math.floor(score / 50));
             }
         }
         
@@ -823,8 +824,8 @@
                     dinoBottom > obstacle.y
                 ) {
                     // Verificação adicional para pássaros - só colide se o dinossauro não estiver agachado
-                    if (obstacle.type === 'bird' && dino.isDucking && dinoBottom < obstacle.y + 10) {
-                        // Não colidir com pássaros se estiver agachado e o pássaro estiver voando alto
+                    if (obstacle.type === 'bird' && dino.isDucking && dinoBottom < obstacle.y + 15) {
+                        // Não colidir com pássaros se estiver agachado e o pássaro estiver voando baixo
                         continue;
                     }
                     
@@ -961,7 +962,7 @@
             scoreElement.textContent = score;
             obstacles = [];
             clouds = [];
-            gameSpeed = 8; // Velocidade inicial aumentada
+            gameSpeed = 9; // Velocidade inicial aumentada
             frameCount = 0;
             dino.x = 50;
             dino.y = canvas.height - 80;
@@ -973,7 +974,7 @@
             scoreMultiplier.style.display = 'none';
             gameOverScreen.style.display = 'none';
             lastObstacleTime = 0;
-            minObstacleGap = 90;
+            minObstacleGap = 80;
         }
         
         function gameLoop() {
